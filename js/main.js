@@ -23,17 +23,12 @@ let isTyping = false;
 let audioEnabled = false;
 
 // Audio elements
-let typingAudioTemplate = null;
 let messageAudioTemplate = null;
 
 // Initialize audio files
 function initAudio() {
     try {
-        // Create audio templates for typing and message sounds
-        typingAudioTemplate = new Audio('audio/iphone-keyboard-typing-sound-effect-336778.mp3');
-        typingAudioTemplate.volume = 0.5;
-        typingAudioTemplate.preload = 'auto';
-        
+        // Create audio template for message sounds
         messageAudioTemplate = new Audio('audio/iphone_msg_sent.mp3');
         messageAudioTemplate.volume = 0.6;
         messageAudioTemplate.preload = 'auto';
@@ -78,55 +73,6 @@ function initAudio() {
     }
 }
 
-// Play typing sound (play only a short segment)
-function playTypingSound() {
-    try {
-        // Create new audio instance each time for reliable playback
-        const audio = new Audio('audio/iphone-keyboard-typing-sound-effect-336778.mp3');
-        audio.volume = 0.5;
-        
-        // Set up to play only first 0.15 seconds
-        audio.currentTime = 0;
-        
-        // Always try to play - don't wait for user interaction
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                // Stop after 0.15 seconds
-                setTimeout(() => {
-                    try {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    } catch (e) {}
-                }, 150);
-            }).catch((err) => {
-                // If play fails, keep trying - don't give up
-                setTimeout(() => {
-                    try {
-                        audio.play().then(() => {
-                            setTimeout(() => {
-                                try {
-                                    audio.pause();
-                                    audio.currentTime = 0;
-                                } catch (e) {}
-                            }, 150);
-                        }).catch(() => {});
-                    } catch (e) {}
-                }, 100);
-            });
-        } else {
-            // Fallback: stop after 0.15 seconds
-            setTimeout(() => {
-                try {
-                    audio.pause();
-                    audio.currentTime = 0;
-                } catch (e) {}
-            }, 150);
-        }
-    } catch (e) {
-        // Audio error, continue silently
-    }
-}
 
 // Play message sent sound (play only a short segment)
 function playMessageSound() {
@@ -240,25 +186,14 @@ function showTypingIndicator(callback) {
     typingEl.appendChild(typingBubble);
     container.appendChild(typingEl);
     
-    // Play typing sound immediately when typing appears
+    // Scroll to bottom
     setTimeout(() => {
-        playTypingSound();
-    }, 50);
-    
-    // Play typing sound periodically while typing
-    const typingSoundInterval = setInterval(() => {
-        playTypingSound();
-    }, 400);
-        
-        // Scroll to bottom
-        setTimeout(() => {
-            container.scrollTop = container.scrollHeight;
-        }, 100);
+        container.scrollTop = container.scrollHeight;
+    }, 100);
         
     // Show typing for longer time (2-3 seconds) to make it realistic
     const typingDuration = 2000 + Math.random() * 1000; // 2-3 seconds
     setTimeout(() => {
-        clearInterval(typingSoundInterval);
         if (callback) callback();
     }, typingDuration);
 }
@@ -274,11 +209,11 @@ function hideTypingIndicator() {
 function displayMessage(message) {
     const container = document.getElementById('messagesContainer');
     createTextMessage(message.content, container);
-    
-    // Scroll to bottom
-    setTimeout(() => {
-        container.scrollTop = container.scrollHeight;
-    }, 100);
+        
+        // Scroll to bottom
+        setTimeout(() => {
+            container.scrollTop = container.scrollHeight;
+        }, 100);
 }
 
 function createTextMessage(content, container) {
